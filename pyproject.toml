@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osint-toolbox"
+version = "0.9.0"
+description = "Evidence-first, provider-independent OSINT case workbench"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "OSINT Toolbox contributors"}]
+dependencies = ["jsonschema>=4.23,<5"]
+keywords = ["osint", "research", "evidence", "provenance"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Security"
+]
+
+[project.optional-dependencies]
+pdf = ["reportlab>=4.2,<5"]
+
+[project.scripts]
+osint-toolbox = "osint_toolbox.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+osint_toolbox = ["data/*.json"]
+
+[tool.setuptools.data-files]
+"share/osint-toolbox/templates" = [
+  "templates/case-brief.md",
+  "templates/report-template.md",
+  "templates/source-assessment.md",
+  "templates/redaction-policy.json",
+  "templates/geolocation-worksheet.example.json",
+  "templates/media-provenance-worksheet.example.json"
+]
+"share/osint-toolbox/schemas" = [
+  "schemas/README.md",
+  "schemas/case.schema.json",
+  "schemas/record.schema.json"
+]
+"share/osint-toolbox/docs" = [
+  "CHANGELOG.md",
+  "docs/ARCHITECTURE.md",
+  "docs/IMPLEMENTATION_ROADMAP.md",
+  "docs/OPERATING_STANDARD.md",
+  "docs/PROVIDERS.md",
+  "docs/TRANSCRIPT_TOPIC_MAP.md",
+  "docs/WORKSTATION_INTEGRATIONS.md",
+  "docs/ANALYSIS_WORKBENCH.md",
+  "docs/LICENSED_PROVIDERS.md"
+]
+"share/osint-toolbox/deploy" = [
+  "deploy/README.md",
+  "deploy/compose.yaml"
+]
+"share/osint-toolbox/deploy/searxng" = ["deploy/searxng/settings.example.yml"]

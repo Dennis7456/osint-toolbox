@@ -1,0 +1,25 @@
+{
+  "kind": "geolocation",
+  "title": "Location assessment — replace this title",
+  "subject_artifact_id": "ART-REPLACE",
+  "source_ids": ["SRC-REPLACE"],
+  "artifact_ids": ["ART-REPLACE", "ART-MAP-SNAPSHOT"],
+  "clues": [
+    {"description": "Visible landmark and camera angle, as observed in subject media", "source_ids": ["SRC-REPLACE"]}
+  ],
+  "candidates": [
+    {
+      "label": "Candidate location, not a confirmed location",
+      "source_ids": ["SRC-REPLACE"],
+      "matched_features": [
+        {"description": "Matching visible landmark", "source_ids": ["SRC-REPLACE"]}
+      ],
+      "mismatched_features": [
+        {"description": "Unresolved roofline or road-layout difference", "source_ids": ["SRC-REPLACE"]}
+      ],
+      "map_artifact_ids": ["ART-MAP-SNAPSHOT"]
+    }
+  ],
+  "leads": [],
+  "assessment": "Candidate only; confirm map date, camera direction, and alternative locations."
+}

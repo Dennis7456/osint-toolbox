@@ -1,0 +1,35 @@
+{
+  "catalog_version": "2026-09-17",
+  "registries": [
+    {
+      "jurisdiction": "KE", "id": "ke-nck-license", "name": "Nursing Council of Kenya licence status",
+      "subject": "nurse/midwife professional licence", "mode": "manual-public",
+      "url": "https://osp.nckenya.com/LicenseStatus",
+      "notes": "Prefer a licence number with the practitioner's consent; same-name matches are not identity proof. Do not automate the portal."
+    },
+    {
+      "jurisdiction": "KE", "id": "ke-brs-official-search", "name": "Business Registration Service official search",
+      "subject": "registered business", "mode": "manual-account-fee",
+      "url": "https://brs.ecitizen.go.ke/",
+      "notes": "Official search may require eCitizen login and payment. No automated login or scraping is provided; preserve the purchased extract as an artifact."
+    },
+    {
+      "jurisdiction": "UK", "id": "uk-companies-house", "name": "Companies House",
+      "subject": "UK company", "mode": "api-credentialed",
+      "url": "https://find-and-update.company-information.service.gov.uk/",
+      "notes": "Use the licensed/approved API adapter for bounded company search; verify company number and current filing status."
+    },
+    {
+      "jurisdiction": "US", "id": "us-sec-edgar", "name": "SEC EDGAR",
+      "subject": "US public filer", "mode": "manual-public",
+      "url": "https://www.sec.gov/search-filings",
+      "notes": "Search by company/CIK; data.sec.gov provides submissions APIs. Respect SEC fair-access and identification rules."
+    },
+    {
+      "jurisdiction": "GLOBAL", "id": "global-gleif-lei", "name": "GLEIF LEI",
+      "subject": "legal entity identifier", "mode": "manual-public",
+      "url": "https://search.gleif.org/",
+      "notes": "Use LEI as a corporate identifier, not proof of all ownership or current operational status."
+    }
+  ]
+}

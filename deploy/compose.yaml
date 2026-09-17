@@ -1,0 +1,41 @@
+name: osint-toolbox
+
+services:
+  searxng:
+    image: ${SEARXNG_IMAGE:-docker.io/searxng/searxng:latest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ${SEARXNG_SETTINGS_FILE:-./searxng/settings.yml}:/etc/searxng/settings.yml:ro
+      - searxng-cache:/var/cache/searxng
+    environment:
+      SEARXNG_BASE_URL: http://localhost:8080/
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+  archivebox:
+    image: ${ARCHIVEBOX_IMAGE:-docker.io/archivebox/archivebox:latest}
+    restart: unless-stopped
+    command: server --quick-init 0.0.0.0:8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - archivebox-data:/data
+    environment:
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      PUBLIC_INDEX: "False"
+      PUBLIC_SNAPSHOTS: "False"
+      PUBLIC_ADD_VIEW: "False"
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  searxng-cache:
+  archivebox-data:

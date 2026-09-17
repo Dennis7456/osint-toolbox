@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/osint-toolbox/schema/1.4/case.schema.json",
+  "title": "OSINT Toolbox case metadata",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "case_id",
+    "title",
+    "purpose",
+    "authority",
+    "target_type",
+    "target",
+    "owner",
+    "sensitivity",
+    "retention_until",
+    "reviewers",
+    "jurisdictions",
+    "collection_tier",
+    "created_at_utc",
+    "status",
+    "legal_hold"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.4"},
+    "case_id": {"type": "string", "pattern": "^CASE-[A-Z0-9-]+$"},
+    "title": {"type": "string", "minLength": 1},
+    "purpose": {"type": "string", "minLength": 1},
+    "authority": {"type": "string", "minLength": 1},
+    "target_type": {
+      "enum": ["person", "organization", "domain", "username", "email", "media", "location", "social", "event"]
+    },
+    "target": {"type": "string", "minLength": 1},
+    "owner": {"type": "string"},
+    "sensitivity": {"enum": ["public", "internal", "confidential", "restricted"]},
+    "retention_until": {"type": "string"},
+    "reviewers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "jurisdictions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "collection_tier": {"enum": ["manual-public", "passive-public", "approved-licensed"]},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["open", "review", "closed", "archived"]},
+    "legal_hold": {
+      "type": "object",
+      "required": [
+        "active", "hold_id", "reason", "authority", "set_at_utc", "set_by",
+        "released_at_utc", "released_by", "release_reason", "release_authority"
+      ],
+      "properties": {
+        "active": {"type": "boolean"},
+        "hold_id": {"type": "string", "pattern": "^$|^HLD-[A-Z0-9]+$"},
+        "reason": {"type": "string"},
+        "authority": {"type": "string"},
+        "set_at_utc": {
+          "oneOf": [{"const": ""}, {"type": "string", "format": "date-time"}]
+        },
+        "set_by": {"type": "string"},
+        "released_at_utc": {
+          "oneOf": [{"const": ""}, {"type": "string", "format": "date-time"}]
+        },
+        "released_by": {"type": "string"},
+        "release_reason": {"type": "string"},
+        "release_authority": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"active": {"const": true}}},
+          "then": {
+            "properties": {
+              "hold_id": {"minLength": 1},
+              "reason": {"minLength": 1},
+              "authority": {"minLength": 1},
+              "set_at_utc": {"type": "string", "format": "date-time"},
+              "set_by": {"minLength": 1},
+              "released_at_utc": {"const": ""},
+              "released_by": {"const": ""},
+              "release_reason": {"const": ""},
+              "release_authority": {"const": ""}
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "updated_at_utc": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}

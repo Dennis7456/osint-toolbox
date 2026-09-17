@@ -1,0 +1,63 @@
+{
+  "mask_case_fields": [
+    "authority",
+    "owner",
+    "target"
+  ],
+  "mask_dataset_fields": {
+    "sources": [
+      "notes"
+    ],
+    "observations": [
+      "query"
+    ],
+    "entities": [
+      "attributes",
+      "notes"
+    ],
+    "claims": [
+      "notes"
+    ],
+    "provider_runs": [
+      "target",
+      "error"
+    ],
+    "resolutions": [
+      "features",
+      "reason"
+    ],
+    "worksheets": [
+      "title",
+      "clues",
+      "candidates",
+      "leads",
+      "assessment"
+    ],
+    "audit_reviews": [
+      "reason",
+      "reviewer"
+    ],
+    "provider_approvals": [
+      "target",
+      "reason",
+      "data_residency_note",
+      "cost_note"
+    ]
+  },
+  "exclude_record_ids": {
+    "sources": [],
+    "artifacts": [],
+    "observations": [],
+    "entities": [],
+    "relationships": [],
+    "events": [],
+    "derivations": [],
+    "claims": [],
+    "provider_runs": [],
+    "legal_holds": [],
+    "resolutions": [],
+    "worksheets": [],
+    "audit_reviews": [],
+    "provider_approvals": []
+  }
+}

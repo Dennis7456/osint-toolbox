@@ -1,0 +1,194 @@
+{
+  "schema_version": "1.0",
+  "workflows": {
+    "person": {
+      "questions": [
+        "What decision will this research support, and which personal data is truly necessary?",
+        "Which seed identifiers are independently known (name, location, employer, username, image)?",
+        "What would distinguish the subject from namesakes?",
+        "Which findings require two independent sources?"
+      ],
+      "steps": [
+        "Record scope, authority, retention period, and prohibited data before collection.",
+        "Normalize known identifiers and record spelling, transliteration, and date variants.",
+        "Search exact names with discriminating context; prefer primary public records and first-party pages.",
+        "Pivot to public usernames, professional profiles, documents, and media without assuming identity equivalence.",
+        "Build a dated timeline and relationship candidates; label each as observed, inferred, or unknown.",
+        "Corroborate material identity links with independent attributes and preserve cited artifacts.",
+        "Minimize or redact unrelated personal data before reporting."
+      ],
+      "stop_conditions": [
+        "Stop when the purpose has been answered with sufficient corroboration.",
+        "Stop before contacting the subject, triggering notifications, accessing non-public content, or collecting unnecessary sensitive data.",
+        "Escalate for legal review when minors, protected classes, medical data, precise home locations, or imminent-risk situations are involved."
+      ]
+    },
+    "organization": {
+      "questions": [
+        "What legal entities, brands, jurisdictions, and date range are in scope?",
+        "Is this due diligence, public exposure review, threat intelligence, or another defined purpose?",
+        "Which sources are authoritative for registration, ownership, filings, and leadership?"
+      ],
+      "steps": [
+        "Resolve the official legal name, identifiers, registered jurisdiction, and first-party domains.",
+        "Collect registry filings, beneficial ownership where lawfully public, LEIs, and regulator disclosures.",
+        "Map brands, subsidiaries, directors, officers, locations, and public contact patterns.",
+        "Review public web content, archives, indexed documents, news, and official social accounts.",
+        "If explicitly authorized, inventory the organization's passive internet footprint and public breach notifications.",
+        "Corroborate ownership and control relationships; record effective dates and conflicting sources.",
+        "Produce a source-backed profile, timeline, relationship graph, gaps, and risk indicators."
+      ],
+      "stop_conditions": [
+        "Do not probe logins, test credentials, interact with staff, or perform active scanning without separate written authorization.",
+        "Do not treat data-broker aggregation as authoritative without primary-source confirmation.",
+        "Stop collection that falls outside the named entities, jurisdictions, and date range."
+      ]
+    },
+    "domain": {
+      "questions": [
+        "Is the domain owned by the authorized organization and explicitly in scope?",
+        "Is the task passive footprinting only, or is active testing separately authorized?",
+        "Which time period matters: current state, historical state, or both?"
+      ],
+      "steps": [
+        "Record the exact domain and proof of scope.",
+        "Query RDAP, DNS, certificate transparency, passive DNS, and web archives.",
+        "Inventory indexed hosts, public documents, technologies, and third-party dependencies using passive sources.",
+        "Compare present and historical records; distinguish observed infrastructure from inferred ownership.",
+        "Check public breach metadata only through authorized or verified-domain services.",
+        "Preserve source URLs, timestamps, screenshots or WARC captures, and relevant response data.",
+        "Report exposure and confidence without converting passive observations into intrusion attempts."
+      ],
+      "stop_conditions": [
+        "Do not port-scan, brute-force, exploit, enumerate private endpoints, or submit URLs to public scanners when confidentiality requires a private scan.",
+        "Do not infer ownership from a shared IP, CDN, certificate, or analytics ID alone.",
+        "Stop when passive sources become repetitive and the scoped questions are answered."
+      ]
+    },
+    "username": {
+      "questions": [
+        "Is the handle public, and what independently known attributes can corroborate identity?",
+        "Could the handle be common, recycled, impersonated, or shared?",
+        "Which platforms and languages are relevant to the purpose?"
+      ],
+      "steps": [
+        "Search the exact handle with WhatsMyName, Sherlock, Maigret, and search engines within reasonable rate limits.",
+        "Open every candidate result and manually confirm it is a real public profile rather than a false positive.",
+        "Record stable platform IDs when lawfully visible, profile URLs, names, bios, dates, outbound links, and avatar hashes.",
+        "Compare avatars, writing, location, links, and timelines; treat each as a separate indicator.",
+        "Build candidate identity clusters and require multiple independent indicators before merging them.",
+        "Preserve relevant public pages and document negative or unavailable results as time-bound observations."
+      ],
+      "stop_conditions": [
+        "Do not attempt logins, password resets, CAPTCHA bypass, blocks, or access to private profiles.",
+        "Do not report same-username matches as the same person without corroboration.",
+        "Stop automated checks when a platform disallows them or returns rate-limit/block signals."
+      ]
+    },
+    "email": {
+      "questions": [
+        "Is the address publicly listed, organization-owned, self-owned, or otherwise authorized for checking?",
+        "Is the goal discovery, verification, attribution, or exposure notification?",
+        "Would a check send a message or notification to the address owner?"
+      ],
+      "steps": [
+        "Derive likely organizational formats only from public examples and label unverified candidates clearly.",
+        "Use first-party contact pages, public documents, Hunter, or equivalent licensed sources for discovery.",
+        "Use non-notifying validation methods permitted by the provider and record false-positive limitations.",
+        "Use HIBP only for self-owned, authorized addresses, or verified organizational domains; retain breach metadata rather than passwords.",
+        "Corroborate attribution with public role, domain, and profile evidence.",
+        "Minimize the address in reports when the full value is not required."
+      ],
+      "stop_conditions": [
+        "Do not use account-recovery flows that may alert the person or change account state.",
+        "Do not send test messages, enumerate private services, or store leaked credentials without explicit legal authority and an approved handling system.",
+        "Stop when the purpose can be met with a role address rather than a personal address."
+      ]
+    },
+    "media": {
+      "questions": [
+        "Is the available file original, recompressed, or a screenshot/download?",
+        "What exactly must be established: origin, identity, location, time, manipulation, or context?",
+        "Could the media expose a vulnerable person's location or identity?"
+      ],
+      "steps": [
+        "Preserve the original file unchanged, compute SHA-256, and record how it was obtained.",
+        "Extract metadata with ExifTool and technical properties with FFmpeg/ffprobe; treat metadata as claims requiring context.",
+        "For video, extract representative keyframes; run OCR and reverse-image searches across multiple engines.",
+        "Inspect signs, language, road markings, shadows, weather, architecture, terrain, reflections, and edits.",
+        "Correlate candidate locations with maps, streetside imagery, satellite imagery, SunCalc, and dated weather or event records.",
+        "Build a provenance and chronology assessment; distinguish file timestamp, upload timestamp, and depicted time.",
+        "Preserve derivatives separately and record that they were derived from the original artifact."
+      ],
+      "stop_conditions": [
+        "Do not overwrite, strip, enhance, or re-encode the preserved original.",
+        "Do not publish precise locations of vulnerable people or sensitive facilities without a documented necessity review.",
+        "Do not treat a single reverse-image match or AI geolocation result as proof."
+      ]
+    },
+    "location": {
+      "questions": [
+        "What precision is necessary and proportionate: country, city, site, or exact coordinates?",
+        "What date or season is depicted?",
+        "Which observable clues can be independently verified?"
+      ],
+      "steps": [
+        "List observable clues before searching to reduce confirmation bias.",
+        "Use reverse-image search and OCR to generate candidates, not conclusions.",
+        "Compare roads, transit, utilities, signs, businesses, terrain, architecture, vegetation, and driving side.",
+        "Validate candidates in Google Maps/Earth, OpenStreetMap, Mapillary, satellite imagery, and historical imagery where available.",
+        "Check sun angle, weather, construction history, and event timing when the date matters.",
+        "Document matched and mismatched features and calculate the required precision.",
+        "Withhold unnecessary exact coordinates in dissemination."
+      ],
+      "stop_conditions": [
+        "Do not trespass, fly drones, surveil a residence, or conduct on-site reconnaissance without separate authority and safety planning.",
+        "Do not expose a sensitive or vulnerable person's real-time location.",
+        "Stop when remaining uncertainty cannot be resolved from lawful public sources."
+      ]
+    },
+    "social": {
+      "questions": [
+        "Which platform, account, date window, keywords, and public interactions are in scope?",
+        "Is an official API available and permitted for the intended use?",
+        "Which stable account identifiers are visible?"
+      ],
+      "steps": [
+        "Use native search and approved APIs before third-party scrapers.",
+        "Record the profile URL, visible stable ID, display name, bio, creation date, and access time.",
+        "Collect only relevant public posts, comments, media, tags, and outbound links within the date range.",
+        "Analyze interaction patterns and timelines as indicators; do not equate engagement with a real-world relationship.",
+        "Capture relevant pages with Hunchly or ArchiveBox and hash downloaded media.",
+        "Corroborate deleted or historical material through archives and independent sources.",
+        "Review platform terms, privacy, minimization, and reporting redactions before dissemination."
+      ],
+      "stop_conditions": [
+        "Do not use deceptive friend requests, impersonation, private-group access, or automated login scraping by default.",
+        "Do not bypass blocks, rate limits, CAPTCHAs, or privacy controls.",
+        "Stop collection of unrelated friends, followers, minors, or sensitive personal content."
+      ]
+    },
+    "event": {
+      "questions": [
+        "What event, geography, time window, and decision are in scope?",
+        "Which official, journalistic, eyewitness, sensor, and archival sources are available?",
+        "What misinformation or coordination hypotheses must be tested?"
+      ],
+      "steps": [
+        "Define the event vocabulary, languages, spellings, hashtags, geography, and UTC time window.",
+        "Collect official records and first reports, then broaden to news, social, media, archives, and public datasets.",
+        "Normalize all timestamps to UTC while preserving displayed local time and source timezone.",
+        "Verify media origin, location, and chronology; identify reposts and earliest known public appearances.",
+        "Build an event timeline and source-claim graph with contradictions and information gaps.",
+        "Assess source independence, incentives, proximity, and corroboration.",
+        "Report what is known, likely, disputed, and unknown with confidence and cut-off time."
+      ],
+      "stop_conditions": [
+        "Do not amplify harmful content or publish identities/locations of vulnerable people without necessity.",
+        "Do not rely on engagement metrics or repeated reposts as independent corroboration.",
+        "Stop or escalate when collection creates physical, legal, or psychosocial risk."
+      ]
+    }
+  }
+}
+

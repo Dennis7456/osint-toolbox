@@ -1,0 +1,28 @@
+{
+  "kind": "media-provenance",
+  "title": "Media provenance assessment — replace this title",
+  "subject_artifact_id": "ART-REPLACE",
+  "source_ids": ["SRC-REPLACE"],
+  "artifact_ids": ["ART-REPLACE"],
+  "clues": [],
+  "candidates": [],
+  "leads": [
+    {
+      "lead_kind": "reverse-search",
+      "description": "Potential matching appearance, not a proven original",
+      "url": "https://example.org/reverse-search-result",
+      "observed_at": "2026-09-17",
+      "source_ids": ["SRC-REPLACE"],
+      "notes": "Log the public result page as a source before recording this lead."
+    },
+    {
+      "lead_kind": "earliest-appearance",
+      "description": "Earliest appearance found so far, not necessarily first publication",
+      "url": "https://example.org/older-appearance",
+      "observed_at": "2024-01-01",
+      "source_ids": ["SRC-REPLACE"],
+      "notes": "Verify timestamp independently and compare later appearances."
+    }
+  ],
+  "assessment": "Time of original capture and first publication remain unverified."
+}

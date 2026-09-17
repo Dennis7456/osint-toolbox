@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "recipes": [
+    {
+      "id": "web.exact-name",
+      "topics": ["search", "people", "organization"],
+      "description": "Exact-name discovery; add context when the name is common.",
+      "template": "\"{name}\""
+    },
+    {
+      "id": "web.name-context",
+      "topics": ["search", "people", "organization"],
+      "description": "Exact name combined with a corroborating place, employer, role, or event.",
+      "template": "\"{name}\" \"{context}\""
+    },
+    {
+      "id": "web.site-term",
+      "topics": ["search", "social", "archives"],
+      "description": "Find an exact term within one public website.",
+      "template": "site:{site} \"{term}\""
+    },
+    {
+      "id": "web.exclude-noise",
+      "topics": ["search"],
+      "description": "Exact term while removing a known ambiguous result set.",
+      "template": "\"{term}\" -\"{exclude}\""
+    },
+    {
+      "id": "documents.resume-cv",
+      "topics": ["documents", "people"],
+      "description": "Locate publicly indexed resumes or CVs for manual verification.",
+      "template": "\"{name}\" (resume OR cv) (filetype:pdf OR filetype:docx)"
+    },
+    {
+      "id": "documents.domain-public-files",
+      "topics": ["documents", "domain", "organization"],
+      "description": "Inventory public documents indexed under an authorized domain.",
+      "template": "site:{domain} (filetype:pdf OR filetype:docx OR filetype:xlsx OR filetype:csv)"
+    },
+    {
+      "id": "documents.public-markings",
+      "topics": ["documents", "domain", "organization"],
+      "description": "Find public documents carrying common handling labels; review only within scope.",
+      "template": "site:{domain} (\"internal use\" OR \"not for distribution\" OR confidential) (filetype:pdf OR filetype:docx)"
+    },
+    {
+      "id": "usernames.exact-handle",
+      "topics": ["username", "social"],
+      "description": "Search for an exact public handle; identity still requires corroboration.",
+      "template": "\"{username}\""
+    },
+    {
+      "id": "usernames.site-handle",
+      "topics": ["username", "social"],
+      "description": "Check an exact handle on a named platform via a search engine.",
+      "template": "site:{platform_domain} \"{username}\""
+    },
+    {
+      "id": "email.public-domain-mentions",
+      "topics": ["email", "organization"],
+      "description": "Find public mentions of an organizational email domain outside its own site.",
+      "template": "\"@{domain}\" -site:{domain}"
+    },
+    {
+      "id": "people.public-birthday-clues",
+      "topics": ["people", "social"],
+      "description": "Find public birthday statements or congratulations for manual date corroboration.",
+      "template": "\"{name}\" (\"happy birthday\" OR \"my birthday\" OR birthday)"
+    },
+    {
+      "id": "people.role-organization",
+      "topics": ["people", "organization"],
+      "description": "Find public references connecting a role and organization.",
+      "template": "\"{organization}\" \"{role}\""
+    },
+    {
+      "id": "archives.wayback-domain",
+      "topics": ["archives", "domain"],
+      "description": "Locate Wayback references to a domain using a general search engine.",
+      "template": "site:web.archive.org/web/ \"{domain}\""
+    },
+    {
+      "id": "geolocation.two-clues",
+      "topics": ["geolocation", "media"],
+      "description": "Correlate two legible signs, landmarks, businesses, or infrastructure clues.",
+      "template": "\"{clue_one}\" \"{clue_two}\""
+    },
+    {
+      "id": "event.date-place",
+      "topics": ["event", "search", "social"],
+      "description": "Search an event keyword with an exact place and date token.",
+      "template": "\"{event_term}\" \"{place}\" \"{date}\""
+    }
+  ]
+}
+

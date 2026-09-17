@@ -1,0 +1,101 @@
+{
+  "catalog_version": "2026-09-17",
+  "profiles": {
+    "securitytrails": {
+      "name": "SecurityTrails historical DNS",
+      "mode": "api", "risk": "high", "target_type": "domain", "pii": true,
+      "credential_env": "SECURITYTRAILS_API_KEY", "allowed_basis": ["asset-authorized"],
+      "terms_url": "https://securitytrails.com/terms-of-service",
+      "docs_url": "https://docs.securitytrails.com/docs/overview",
+      "data_residency": "Provider-controlled; confirm subscription agreement and jurisdictional suitability before approval.",
+      "attribution": "Attribute historical DNS values to SecurityTrails and the provider's first/last-seen windows.",
+      "retention": "Use case retention; review organization fields for incidental personal data.",
+      "cost": "Subscription quota and auto-billing depend on the account plan; check before approval.",
+      "query_limits": "Monthly quota and per-second rate limits apply; one record type/page per approved run."
+    },
+    "hibp-account": {
+      "name": "Have I Been Pwned account breach search",
+      "mode": "api", "risk": "high", "target_type": "email", "pii": true,
+      "credential_env": "HIBP_API_KEY", "allowed_basis": ["self", "documented-consent"],
+      "terms_url": "https://haveibeenpwned.com/TermsOfUse",
+      "docs_url": "https://haveibeenpwned.com/API/v3",
+      "data_residency": "Provider-controlled; confirm contractual and jurisdictional suitability before approval.",
+      "attribution": "Attribute breach names to HIBP; do not present a hit as proof that the account owner caused a breach.",
+      "retention": "Use the case retention date; do not collect passwords or stealer logs.",
+      "cost": "Subscription tier and RPM govern cost; confirm in the subscriber account.",
+      "query_limits": "Account API is subscription-rate-limited; obey Retry-After and the approval max-runs cap."
+    },
+    "hibp-domain": {
+      "name": "Have I Been Pwned verified-domain breach search",
+      "mode": "api", "risk": "high", "target_type": "domain", "pii": true,
+      "credential_env": "HIBP_API_KEY", "allowed_basis": ["verified-domain"],
+      "terms_url": "https://haveibeenpwned.com/TermsOfUse",
+      "docs_url": "https://haveibeenpwned.com/API/v3",
+      "data_residency": "Provider-controlled; confirm contractual and jurisdictional suitability before approval.",
+      "attribution": "Attribute returned aliases and breach names to HIBP; verify relevance independently.",
+      "retention": "Use the case retention date; never export aliases in redacted derivatives by default.",
+      "cost": "Domain-search subscription tier depends on breach count and domain count; verify current terms.",
+      "query_limits": "Query infrequently; HIBP may throttle domain search. One verification and one search per run."
+    },
+    "hunter-domain": {
+      "name": "Hunter domain search",
+      "mode": "api", "risk": "high", "target_type": "domain", "pii": true,
+      "credential_env": "HUNTER_API_KEY", "allowed_basis": ["organization-authorized"],
+      "terms_url": "https://hunter.io/terms-of-service",
+      "docs_url": "https://hunter.io/api-documentation",
+      "data_residency": "Provider-controlled; confirm contractual and jurisdictional suitability before approval.",
+      "attribution": "Hunter-derived addresses are leads and must not be used for unsolicited contact.",
+      "retention": "Use the case retention date; exclude results from redacted derivatives by default.",
+      "cost": "Domain Search may consume credits according to plan; verify before approval.",
+      "query_limits": "Provider applies endpoint/key rate limits; this adapter makes one bounded domain-search call."
+    },
+    "censys-host": {
+      "name": "Censys Platform v3 host lookup",
+      "mode": "api", "risk": "high", "target_type": "ip", "pii": true,
+      "credential_env": "CENSYS_PAT", "allowed_basis": ["asset-authorized"],
+      "terms_url": "https://censys.com/terms-of-service/",
+      "docs_url": "https://docs.censys.com/reference/get-started",
+      "data_residency": "Provider-controlled; confirm contractual and jurisdictional suitability before approval.",
+      "attribution": "Attribute host observations to Censys scan timestamps; do not treat them as a live scan.",
+      "retention": "Use case retention; review service banners for incidental personal data.",
+      "cost": "Platform API calls consume credits by account tier; confirm current balance.",
+      "query_limits": "Account concurrency/credit limits apply; this adapter uses one host lookup, no live rescan."
+    },
+    "companies-house": {
+      "name": "UK Companies House company search",
+      "mode": "api", "risk": "medium", "target_type": "organization", "pii": true,
+      "credential_env": "COMPANIES_HOUSE_API_KEY", "allowed_basis": ["business-research"],
+      "terms_url": "https://developer.company-information.service.gov.uk/developer-guidelines",
+      "docs_url": "https://developer-specs.company-information.service.gov.uk/companies-house-public-data-api/reference/search/search-companies",
+      "data_residency": "UK public-register service; review API and case jurisdiction before approval.",
+      "attribution": "Attribute company results to Companies House and retain the company number.",
+      "retention": "Use the case retention date; avoid unnecessary officer or address enrichment.",
+      "cost": "Public-data API access may be free; verify current API account terms.",
+      "query_limits": "Provider rate limits apply; this adapter makes one bounded search request."
+    },
+    "shodan": {
+      "name": "Shodan host search (manual/approved future connector)",
+      "mode": "manual", "risk": "high", "target_type": "ip", "pii": false,
+      "credential_env": "SHODAN_API_KEY", "allowed_basis": ["asset-authorized"],
+      "terms_url": "https://static.shodan.io/legal/terms.html",
+      "docs_url": "https://developer.shodan.io/api",
+      "data_residency": "Provider-controlled; review contractual and jurisdictional suitability.",
+      "attribution": "Attribute indexed banners to Shodan and scan time, not current state.",
+      "retention": "Use case retention; review banners for incidental personal data.",
+      "cost": "Credits and available endpoints depend on the account tier.",
+      "query_limits": "Provider/account limits apply; no in-tool network adapter is enabled."
+    },
+    "maltego": {
+      "name": "Maltego graph import/export (manual)",
+      "mode": "export", "risk": "medium", "target_type": "graph", "pii": true,
+      "credential_env": "", "allowed_basis": ["case-analysis"],
+      "terms_url": "https://www.maltego.com/license-agreement/",
+      "docs_url": "https://docs.maltego.com/en/support/solutions/articles/15000010797-import-graph-from-table",
+      "data_residency": "Local graph handling depends on selected desktop/cloud features; review before sharing.",
+      "attribution": "Preserve source IDs and observed/inferred labels during manual import.",
+      "retention": "Use case retention and delete secondary graph copies when required.",
+      "cost": "License and data connector charges depend on plan.",
+      "query_limits": "Manual export only; no Maltego Transform Hub calls from the toolbox."
+    }
+  }
+}

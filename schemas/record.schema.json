@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/osint-toolbox/schema/1.4/record.schema.json",
+  "title": "OSINT Toolbox JSONL record",
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Z]+-[A-Z0-9]+$"},
+    "timestamp": {"type": "string"},
+    "source_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+    "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+    "feature": {
+      "type": "object", "required": ["description", "source_ids"],
+      "properties": {"description": {"type": "string", "minLength": 1}, "source_ids": {"$ref": "#/$defs/source_ids", "minItems": 1}},
+      "additionalProperties": false
+    },
+    "features": {"type": "array", "items": {"$ref": "#/$defs/feature"}},
+    "media_lead": {
+      "type": "object", "required": ["lead_kind", "description", "url", "observed_at", "source_ids", "notes"],
+      "properties": {
+        "lead_kind": {"enum": ["reverse-search", "earliest-appearance", "other"]},
+        "description": {"type": "string", "minLength": 1}, "url": {"type": "string", "pattern": "^https?://"},
+        "observed_at": {"type": "string"}, "source_ids": {"$ref": "#/$defs/source_ids", "minItems": 1},
+        "notes": {"type": "string"}
+      }, "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object", "required": ["label", "source_ids", "matched_features", "mismatched_features", "map_artifact_ids"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "source_ids": {"$ref": "#/$defs/source_ids", "minItems": 1},
+        "matched_features": {"$ref": "#/$defs/features"},
+        "mismatched_features": {"$ref": "#/$defs/features"},
+        "map_artifact_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true}
+      }, "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "title": "Source",
+      "type": "object",
+      "required": ["source_id", "url", "title", "topic", "reliability", "credibility", "notes", "collector", "accessed_at_utc"],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/id"},
+        "url": {"type": "string", "pattern": "^https?://"},
+        "title": {"type": "string", "minLength": 1},
+        "topic": {"type": "string", "minLength": 1},
+        "reliability": {"enum": ["primary", "secondary", "unknown"]},
+        "credibility": {"$ref": "#/$defs/confidence"},
+        "notes": {"type": "string"},
+        "collector": {"type": "string", "minLength": 1},
+        "accessed_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Artifact",
+      "type": "object",
+      "required": ["artifact_id", "original_name", "stored_path", "sha256", "size_bytes", "mime_type", "source_url", "topic", "notes", "collector", "collected_at_utc"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "original_name": {"type": "string"},
+        "stored_path": {"type": "string", "pattern": "^artifacts/"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "mime_type": {"type": "string"},
+        "source_url": {"type": "string"},
+        "topic": {"type": "string"},
+        "notes": {"type": "string"},
+        "collector": {"type": "string"},
+        "collected_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Observation",
+      "type": "object",
+      "required": ["observation_id", "source_id", "kind", "value", "query", "observed_at", "accessed_at_utc", "artifact_id", "status", "notes", "collector"],
+      "properties": {
+        "observation_id": {"$ref": "#/$defs/id"},
+        "source_id": {"$ref": "#/$defs/id"},
+        "kind": {"type": "string", "minLength": 1},
+        "value": {},
+        "query": {"type": "string"},
+        "observed_at": {"$ref": "#/$defs/timestamp"},
+        "accessed_at_utc": {"type": "string", "format": "date-time"},
+        "artifact_id": {"type": "string"},
+        "status": {"enum": ["observed", "unavailable", "conflicting", "retracted", "superseded", "candidate-unverified"]},
+        "notes": {"type": "string"},
+        "collector": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Entity",
+      "type": "object",
+      "required": ["entity_id", "entity_type", "label", "aliases", "attributes", "role", "confidence", "source_ids", "notes", "analyst", "created_at_utc"],
+      "properties": {
+        "entity_id": {"$ref": "#/$defs/id"},
+        "entity_type": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "aliases": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "attributes": {"type": "object"},
+        "role": {"enum": ["seed", "candidate", "resolved"]},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "source_ids": {"$ref": "#/$defs/source_ids"},
+        "notes": {"type": "string"},
+        "analyst": {"type": "string"},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Relationship",
+      "type": "object",
+      "required": ["relationship_id", "from_entity_id", "relationship_type", "to_entity_id", "evidence_kind", "confidence", "observed_at", "source_ids", "notes", "analyst", "created_at_utc"],
+      "properties": {
+        "relationship_id": {"$ref": "#/$defs/id"},
+        "from_entity_id": {"$ref": "#/$defs/id"},
+        "relationship_type": {"type": "string", "minLength": 1},
+        "to_entity_id": {"$ref": "#/$defs/id"},
+        "evidence_kind": {"enum": ["observed", "inferred"]},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "observed_at": {"$ref": "#/$defs/timestamp"},
+        "source_ids": {"$ref": "#/$defs/source_ids"},
+        "notes": {"type": "string"},
+        "analyst": {"type": "string"},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Event",
+      "type": "object",
+      "required": ["event_id", "label", "event_type", "start_at", "end_at", "start_at_utc", "end_at_utc", "start_precision", "end_precision", "location_entity_id", "confidence", "source_ids", "notes", "analyst", "created_at_utc"],
+      "properties": {
+        "event_id": {"$ref": "#/$defs/id"},
+        "label": {"type": "string", "minLength": 1},
+        "event_type": {"type": "string", "minLength": 1},
+        "start_at": {"type": "string", "minLength": 1},
+        "end_at": {"type": "string"},
+        "start_at_utc": {"type": "string", "minLength": 1},
+        "end_at_utc": {"type": "string"},
+        "start_precision": {"enum": ["date", "datetime"]},
+        "end_precision": {"enum": ["", "date", "datetime"]},
+        "location_entity_id": {"type": "string"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "source_ids": {"$ref": "#/$defs/source_ids"},
+        "notes": {"type": "string"},
+        "analyst": {"type": "string"},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Derivation",
+      "type": "object",
+      "required": ["derivation_id", "parent_artifact_id", "child_artifact_id", "tool", "version", "command", "notes", "actor", "created_at_utc"],
+      "properties": {
+        "derivation_id": {"$ref": "#/$defs/id"},
+        "parent_artifact_id": {"$ref": "#/$defs/id"},
+        "child_artifact_id": {"$ref": "#/$defs/id"},
+        "tool": {"type": "string", "minLength": 1},
+        "version": {"type": "string"},
+        "command": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "notes": {"type": "string"},
+        "actor": {"type": "string"},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Claim",
+      "type": "object",
+      "required": ["claim_id", "statement", "confidence", "status", "source_ids", "notes", "analyst", "created_at_utc"],
+      "properties": {
+        "claim_id": {"$ref": "#/$defs/id"},
+        "statement": {"type": "string", "minLength": 1},
+        "confidence": {"enum": ["high", "medium", "low"]},
+        "status": {"enum": ["assessed", "tentative", "disputed", "retracted"]},
+        "source_ids": {"$ref": "#/$defs/source_ids"},
+        "notes": {"type": "string"},
+        "analyst": {"type": "string"},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Provider run",
+      "type": "object",
+      "required": ["provider_run_id", "provider", "target", "status", "request_url", "source_id", "artifact_id", "observation_count", "error", "collector", "completed_at_utc"],
+      "properties": {
+        "provider_run_id": {"$ref": "#/$defs/id"},
+        "provider": {"type": "string"},
+        "target": {"type": "string"},
+        "status": {"enum": ["completed", "failed", "blocked"]},
+        "request_url": {"type": "string"},
+        "source_id": {"type": "string"},
+        "artifact_id": {"type": "string"},
+        "observation_count": {"type": "integer", "minimum": 0},
+        "error": {"type": "string"},
+        "collector": {"type": "string"},
+        "completed_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Resolution decision",
+      "type": "object",
+      "required": ["resolution_id", "action", "entity_ids", "features", "source_ids", "reason", "reverses_id", "analyst", "created_at_utc"],
+      "properties": {
+        "resolution_id": {"$ref": "#/$defs/id"}, "action": {"enum": ["merge", "split"]},
+        "entity_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}, "minItems": 2, "maxItems": 2, "uniqueItems": true},
+        "features": {"$ref": "#/$defs/features"}, "source_ids": {"$ref": "#/$defs/source_ids", "minItems": 1},
+        "reason": {"type": "string", "minLength": 1}, "reverses_id": {"type": "string"},
+        "analyst": {"type": "string", "minLength": 1}, "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "allOf": [{"if": {"properties": {"action": {"const": "merge"}}}, "then": {"properties": {"features": {"minItems": 1}, "reverses_id": {"const": ""}}}},
+        {"if": {"properties": {"action": {"const": "split"}}}, "then": {"properties": {"features": {"maxItems": 0}, "reverses_id": {"$ref": "#/$defs/id"}}}}],
+      "additionalProperties": false
+    },
+    {
+      "title": "Analysis worksheet", "type": "object",
+      "required": ["worksheet_id", "kind", "title", "subject_artifact_id", "source_ids", "artifact_ids", "clues", "candidates", "leads", "assessment", "analyst", "created_at_utc"],
+      "properties": {
+        "worksheet_id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["geolocation", "media-provenance"]},
+        "title": {"type": "string", "minLength": 1}, "subject_artifact_id": {"type": "string"},
+        "source_ids": {"$ref": "#/$defs/source_ids", "minItems": 1},
+        "artifact_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "clues": {"$ref": "#/$defs/features"},
+        "candidates": {"type": "array", "items": {"$ref": "#/$defs/candidate"}},
+        "leads": {"type": "array", "items": {"$ref": "#/$defs/media_lead"}},
+        "assessment": {"type": "string"}, "analyst": {"type": "string", "minLength": 1},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "allOf": [{"if": {"properties": {"kind": {"const": "geolocation"}}}, "then": {"properties": {"clues": {"minItems": 1}, "candidates": {"minItems": 1}, "leads": {"maxItems": 0}}}},
+        {"if": {"properties": {"kind": {"const": "media-provenance"}}}, "then": {"properties": {"clues": {"maxItems": 0}, "candidates": {"maxItems": 0}, "leads": {"minItems": 1}}}}],
+      "additionalProperties": false
+    },
+    {
+      "title": "Audit review", "type": "object",
+      "required": ["review_id", "fingerprint", "category", "record_ids", "disposition", "reason", "reviewer", "created_at_utc"],
+      "properties": {
+        "review_id": {"$ref": "#/$defs/id"}, "fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "category": {"type": "string", "minLength": 1}, "record_ids": {"type": "array", "items": {"type": "string"}},
+        "disposition": {"enum": ["accepted", "deferred", "false-positive", "resolved", "reopened"]},
+        "reason": {"type": "string", "minLength": 1}, "reviewer": {"type": "string", "minLength": 1},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      }, "additionalProperties": false
+    },
+    {
+      "title": "Provider approval decision", "type": "object",
+      "required": ["approval_id", "action", "provider", "target", "basis", "authority_artifact_id", "reviewer", "actor", "reason", "terms_url", "profile_sha256", "data_residency_note", "cost_note", "expires_at_utc", "max_runs", "reverses_id", "created_at_utc"],
+      "properties": {
+        "approval_id": {"$ref": "#/$defs/id"}, "action": {"enum": ["approved", "revoked"]},
+        "provider": {"type": "string", "minLength": 1}, "target": {"type": "string", "minLength": 1},
+        "basis": {"type": "string", "minLength": 1}, "authority_artifact_id": {"type": "string"},
+        "reviewer": {"type": "string", "minLength": 1}, "actor": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}, "terms_url": {"type": "string", "pattern": "^https://"},
+        "profile_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "data_residency_note": {"type": "string", "minLength": 1}, "cost_note": {"type": "string", "minLength": 1},
+        "expires_at_utc": {"type": "string", "format": "date-time"},
+        "max_runs": {"type": "integer", "minimum": 1, "maximum": 100}, "reverses_id": {"type": "string"},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "allOf": [{"if": {"properties": {"action": {"const": "approved"}}}, "then": {"properties": {"reverses_id": {"const": ""}}}},
+        {"if": {"properties": {"action": {"const": "revoked"}}}, "then": {"properties": {"reverses_id": {"$ref": "#/$defs/id"}}}}],
+      "additionalProperties": false
+    },
+    {
+      "title": "Legal-hold event",
+      "type": "object",
+      "required": [
+        "legal_hold_event_id", "hold_id", "action", "reason", "authority", "actor", "created_at_utc"
+      ],
+      "properties": {
+        "legal_hold_event_id": {"$ref": "#/$defs/id"},
+        "hold_id": {"type": "string", "pattern": "^HLD-[A-Z0-9]+$"},
+        "action": {"enum": ["placed", "released"]},
+        "reason": {"type": "string", "minLength": 1},
+        "authority": {"type": "string", "minLength": 1},
+        "actor": {"type": "string", "minLength": 1},
+        "created_at_utc": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    }
+  ]
+}

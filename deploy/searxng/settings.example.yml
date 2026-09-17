@@ -1,0 +1,20 @@
+use_default_settings: true
+
+general:
+  instance_name: "Local OSINT Toolbox Search"
+
+search:
+  safe_search: 0
+  formats:
+    - html
+    - json
+
+server:
+  secret_key: "REPLACE-WITH-A-LONG-RANDOM-SECRET-BEFORE-STARTING"
+  bind_address: "0.0.0.0"
+  port: 8080
+  limiter: false
+  image_proxy: true
+
+ui:
+  static_use_hash: true
