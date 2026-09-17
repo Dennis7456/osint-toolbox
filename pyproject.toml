@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "osint-toolbox"
-version = "0.9.0"
+version = "1.0.0"
 description = "Evidence-first, provider-independent OSINT case workbench"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,9 +23,21 @@ classifiers = [
 
 [project.optional-dependencies]
 pdf = ["reportlab>=4.2,<5"]
+team = [
+  "fastapi>=0.141.1,<1",
+  "uvicorn>=0.53,<1",
+  "psycopg[binary]>=3.3.5,<4",
+  "PyJWT[crypto]>=2.14,<3",
+  "cryptography>=49,<50"
+]
+test = ["httpx>=0.28,<1", "coverage>=7.6,<8"]
+
+[dependency-groups]
+dev = ["build>=1.2,<2", "pip-audit>=2.9,<3", "bandit>=1.8,<2"]
 
 [project.scripts]
 osint-toolbox = "osint_toolbox.cli:main"
+osint-team = "osint_toolbox.team_ops:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -35,7 +47,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-osint_toolbox = ["data/*.json"]
+osint_toolbox = ["data/*.json", "team_schema.sql"]
 
 [tool.setuptools.data-files]
 "share/osint-toolbox/templates" = [
@@ -60,7 +72,10 @@ osint_toolbox = ["data/*.json"]
   "docs/TRANSCRIPT_TOPIC_MAP.md",
   "docs/WORKSTATION_INTEGRATIONS.md",
   "docs/ANALYSIS_WORKBENCH.md",
-  "docs/LICENSED_PROVIDERS.md"
+  "docs/LICENSED_PROVIDERS.md",
+  "docs/TEAM_SERVICE.md",
+  "docs/PHASE5_VALIDATION.md",
+  "SECURITY.md"
 ]
 "share/osint-toolbox/deploy" = [
   "deploy/README.md",

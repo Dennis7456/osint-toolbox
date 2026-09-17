@@ -21,6 +21,7 @@ try:
     from osint_toolbox.team_api import create_app
     from osint_toolbox.team_ops import backup, restore_drill, verify_backup
     from osint_toolbox.team_store import TeamConfig, TeamStore, verify_team_export
+    from osint_toolbox.team_service import TeamService
     from osint_toolbox.team_worker import run_one
     TEAM_DEPS = True
 except ImportError:
@@ -29,7 +30,7 @@ except ImportError:
 
 @unittest.skipUnless(TEAM_DEPS and os.environ.get("OSINT_TEAM_TEST_DATABASE_URL"),
                      "Team dependencies and a disposable PostgreSQL test URL are required")
-class TeamPlatformTest(unittest.TestCase):
+class TeamPlatformFixture(unittest.TestCase):
     def setUp(self) -> None:
         self.base_url = os.environ["OSINT_TEAM_TEST_DATABASE_URL"]
         self.schema = "osint_test_" + uuid4().hex[:12]
@@ -46,6 +47,7 @@ class TeamPlatformTest(unittest.TestCase):
         )
         self.store = TeamStore(self.config)
         self.store.init_schema()
+        self.service = TeamService(self.store)
         self.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         jwk = json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(self.private_key.public_key()))
         jwk["kid"] = "test-key"
@@ -76,6 +78,8 @@ class TeamPlatformTest(unittest.TestCase):
                                    json={"subject": subject, "role": role})
         self.assertEqual(response.status_code, 200, response.text)
 
+
+class TeamPlatformTest(TeamPlatformFixture):
     def test_auth_rbac_reports_jobs_objects_and_audit(self) -> None:
         case_id = self.create_case()
         for subject, role in (("analyst", "analyst"), ("reviewer", "reviewer"), ("viewer", "viewer")):
@@ -128,7 +132,7 @@ class TeamPlatformTest(unittest.TestCase):
         prepared = PreparedCollection("rdap", "https://rdap.example/domain/example.org", "RDAP test",
                                       "domain", "primary", "high", "rdap.json", b'{"ldhName":"example.org"}',
                                       "application/json", [{"kind": "domain.name", "value": "example.org"}])
-        with patch("osint_toolbox.team_worker.PREPARERS", {"rdap": lambda target, options: prepared}):
+        with patch("osint_toolbox.providers.PREPARERS", {"rdap": lambda target, options: prepared}):
             self.assertEqual(run_one(self.store), job_id)
         with self.store.connect() as conn:
             result = conn.execute("SELECT * FROM team_jobs WHERE job_id=%s", (job_id,)).fetchone()
@@ -160,11 +164,11 @@ class TeamPlatformTest(unittest.TestCase):
                                           json={"active": True, "reason": "Preserve", "authority": "Counsel"}).status_code, 200)
         with self.store.connect() as conn:
             conn.execute("UPDATE team_cases SET retention_until=CURRENT_DATE-1 WHERE case_id=%s", (case_id,))
-        self.assertEqual(self.store.retention_sweep("service:retention"), [])
+        self.assertEqual(self.service.retention_sweep(self.config.worker_subject), [])
         self.assertTrue(self.store.objects.path(case_id, object_id).exists())
         self.assertEqual(self.client.post(f"/cases/{case_id}/legal-hold", headers=self.auth("admin"),
                                           json={"active": False, "reason": "Released", "authority": "Counsel"}).status_code, 200)
-        self.assertEqual(self.store.retention_sweep("service:retention"), [case_id])
+        self.assertEqual(self.service.retention_sweep(self.config.worker_subject), [case_id])
         self.assertFalse(self.store.objects.path(case_id, object_id).exists())
         self.assertEqual(self.client.get(f"/cases/{case_id}", headers=self.auth("admin")).status_code, 404)
         self.assertTrue(self.store.verify_audit()[0])

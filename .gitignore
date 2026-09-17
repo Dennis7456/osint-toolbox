@@ -11,3 +11,21 @@ deploy/searxng/settings.yml
 provider-status.json
 dist/
 cases/
+# Secrets, local team state, snapshots and generated evidence stay out of Git.
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.otb
+*.dump
+*.enc
+team-data/
+team-objects/
+backups/
+secrets/
+deploy/team.env
+.ruff_cache/
+.DS_Store
+htmlcov/
+coverage.xml

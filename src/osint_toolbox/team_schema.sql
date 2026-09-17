@@ -1,4 +1,7 @@
--- Team service schema. Run as a dedicated application database owner.
+-- Run migrations as a schema owner, never as the least-privileged runtime role.
+CREATE TABLE IF NOT EXISTS team_schema_version (
+  singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton), version integer NOT NULL
+);
 CREATE TABLE IF NOT EXISTS team_cases (
   case_id text PRIMARY KEY,
   title text NOT NULL,
@@ -103,3 +106,28 @@ END $$;
 DROP TRIGGER IF EXISTS team_audit_no_mutation ON team_audit;
 CREATE TRIGGER team_audit_no_mutation BEFORE UPDATE OR DELETE OR TRUNCATE ON team_audit
   FOR EACH STATEMENT EXECUTE FUNCTION team_audit_immutable();
+
+-- Version 2: additive migration from the unreleased Phase 5 prototype.
+ALTER TABLE team_cases ADD COLUMN IF NOT EXISTS purged_at timestamptz;
+ALTER TABLE team_jobs ADD COLUMN IF NOT EXISTS disclosure_confirmed boolean NOT NULL DEFAULT false;
+ALTER TABLE team_jobs ADD COLUMN IF NOT EXISTS idempotency_key text;
+ALTER TABLE team_jobs ADD COLUMN IF NOT EXISTS request_sha256 text;
+ALTER TABLE team_jobs ADD COLUMN IF NOT EXISTS lease_token text;
+ALTER TABLE team_jobs ADD COLUMN IF NOT EXISTS lease_expires_at timestamptz;
+ALTER TABLE team_jobs ADD COLUMN IF NOT EXISTS attempts integer NOT NULL DEFAULT 0 CHECK (attempts >= 0);
+ALTER TABLE team_jobs DROP CONSTRAINT IF EXISTS team_jobs_status_check;
+ALTER TABLE team_jobs ADD CONSTRAINT team_jobs_status_check
+  CHECK (status IN ('pending','approved','running','completed','failed','rejected','cancelled'));
+CREATE UNIQUE INDEX IF NOT EXISTS team_jobs_idempotency_idx
+  ON team_jobs(case_id,requested_by,idempotency_key) WHERE idempotency_key IS NOT NULL;
+CREATE INDEX IF NOT EXISTS team_members_subject_idx ON team_members(subject,case_id);
+CREATE INDEX IF NOT EXISTS team_audit_case_idx ON team_audit(case_id,event_id);
+CREATE INDEX IF NOT EXISTS team_cases_retention_idx ON team_cases(retention_until)
+  WHERE deleted_at IS NULL AND legal_hold=false;
+-- Old jobs have no persisted disclosure proof or lease: never grandfather them in.
+UPDATE team_jobs SET status='failed',error='Migration requires a new reviewed job'
+  WHERE status IN ('pending','approved','running') AND disclosure_confirmed=false AND kind='provider';
+UPDATE team_jobs SET status='failed',error='Migration requires a new reviewed job'
+  WHERE status='running' AND lease_token IS NULL;
+INSERT INTO team_schema_version(singleton,version) VALUES(true,2)
+  ON CONFLICT(singleton) DO UPDATE SET version=EXCLUDED.version;

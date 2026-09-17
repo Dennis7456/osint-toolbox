@@ -199,6 +199,8 @@ def _fetch(
 ) -> FetchResult:
     if not url.startswith(("https://", "http://")):
         raise ValueError("Provider URL must use HTTP or HTTPS")
+    if urlsplit(url).username is not None or urlsplit(url).password is not None:
+        raise ValueError("Provider URLs must not contain credentials")
     if headers and urlsplit(url).scheme != "https":
         raise ValueError("Credentialed provider requests require HTTPS")
     if not 0 <= retries <= 4:
@@ -342,7 +344,11 @@ def select_rdap_base(bootstrap: Any, domain: str) -> str:
             continue
         names, urls = service
         if isinstance(names, list) and tld in {str(name).lower() for name in names} and isinstance(urls, list) and urls:
-            return str(urls[0])
+            base = str(urls[0])
+            parsed = urlsplit(base)
+            if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.query or parsed.fragment:
+                raise ValueError("RDAP bootstrap endpoint must be an uncredentialed HTTPS URL")
+            return base
     raise ValueError(f"No RDAP service found for .{tld}")
 
 
@@ -477,6 +483,9 @@ def _commoncrawl(target: str, options: dict[str, str]) -> PreparedCollection:
         if match_type not in {"exact", "prefix", "host", "domain"}:
             raise ValueError("Common Crawl match_type must be exact, prefix, host, or domain")
         params["matchType"] = match_type
+    endpoint = urlsplit(str(selected["cdx-api"]))
+    if endpoint.scheme != "https" or endpoint.netloc != "index.commoncrawl.org" or endpoint.query or endpoint.fragment:
+        raise ValueError("Common Crawl catalog returned an untrusted index endpoint")
     url = str(selected["cdx-api"]) + "?" + urlencode(params)
     fetched = _fetch(url, timeout, "application/x-ndjson, application/json")
     return PreparedCollection(
@@ -1179,7 +1188,11 @@ def collect_provider(
             add_provider_run(case_dir, provider, target, "blocked", "", error=str(exc), collector=collector)
             raise
     try:
-        prepared = PREPARERS[provider](target, selected_options)
+        from .application import execute_collection
+        # Local approval/disclosure reservations above are already durable. Recheck
+        # case mutability immediately before the shared adapter boundary executes.
+        prepared = execute_collection(provider, target, selected_options,
+                                      authorize=lambda: assert_case_mutable(case_dir))
         if approval_id:
             prepared.source_notes = " ".join((prepared.source_notes.strip(), f"Approved under {approval_id}."))
         if disclosure_id:
